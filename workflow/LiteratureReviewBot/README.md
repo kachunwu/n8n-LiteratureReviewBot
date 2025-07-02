@@ -13,4 +13,4 @@ Source: Textbooks, Peer-reviewed journal, Thesis and Dissertations
 Research Questions: None
 
 ## Example Output: 
-https://raw.githubusercontent.com/kachunwu/n8n-LiteratureReviewBot/refs/heads/main/workflow/LiteratureReviewBot/example_report.html
+https://htmlpreview.github.io/?https://raw.githubusercontent.com/kachunwu/n8n-LiteratureReviewBot/refs/heads/main/workflow/LiteratureReviewBot/example_report.html
