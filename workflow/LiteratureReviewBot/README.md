@@ -17,6 +17,6 @@ https://htmlpreview.github.io/?https://raw.githubusercontent.com/kachunwu/n8n-Li
 
 ## References
 Here are some videos that I referenced to build the workflow and write the prompts for the AI agents.
-Nate Herk | AI Automation: https://www.youtube.com/watch?v=HUdm3NXwk-w&t=154s (Architecture, Prompt writing)
-Derek Cheung | AI Agents Automation: https://www.youtube.com/watch?v=LSPmrCX_cJI&t=419s (Architecture, Prompt writing)
-Julian Goldie SEO: https://www.youtube.com/watch?v=BaRsvYBHX_0 (Perplexity Integration)
+- Nate Herk | AI Automation: https://www.youtube.com/watch?v=HUdm3NXwk-w&t=154s (Architecture, Prompt writing)
+- Derek Cheung | AI Agents Automation: https://www.youtube.com/watch?v=LSPmrCX_cJI&t=419s (Architecture, Prompt writing)
+- Julian Goldie SEO: https://www.youtube.com/watch?v=BaRsvYBHX_0 (Perplexity Integration)
