@@ -1,0 +1,445 @@
+{
+  "name": "Research Team",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Literature Review Bot",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What topic you want to research on?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Where would you like to gather information from?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Textbook"
+                  },
+                  {
+                    "option": "Peer-reviewed Journal"
+                  },
+                  {
+                    "option": "Thesis and Dissertation"
+                  },
+                  {
+                    "option": "Social Media"
+                  },
+                  {
+                    "option": "Web"
+                  }
+                ]
+              },
+              "multiselect": true,
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Is there any specific research question you want to answer? (Optional; List the questions in the area below)",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "Email Address to receive the literature review:",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1520,
+        -120
+      ],
+      "id": "4541d5b3-f063-4fb4-b374-356c11579d7c",
+      "name": "On form submission",
+      "webhookId": "36923972-925f-4b8b-8c25-6fe3cafc9907"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -1140,
+        240
+      ],
+      "id": "dea4c3ec-fee4-4fdc-81ac-ff915a77f49d",
+      "name": "GPT-4.1-mini",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "AOGwdIBmHMWxXW03",
+          "name": "Azure Open AI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        320
+      ],
+      "id": "a0e2e938-149f-48c8-b715-8e112925c428",
+      "name": "Message a model in Perplexity",
+      "credentials": {
+        "perplexityApi": {
+          "id": "RAuIH4jgvq6OWyr3",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=output.chapters",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -580,
+        -120
+      ],
+      "id": "1bacbe21-f3a0-4c61-91ea-f1b5a87a645f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here are the list of chapters to edit:\n{{ $json.output }}\n\nProvide polished output in HTML format. ",
+        "options": {
+          "systemMessage": "=You are an expert journal manuscript editor specializing in refining and polishing content to ensure it meets publication standards. Your role is to review and improve the written material produced by multiple writers while maintaining academic integrity and proper source attribution. Your task is to provide a highly polished, ready-to-publish article with proper citation management.\n\nContent Review Instruction:\n- Carefully read the entire content piece\n- Check for grammar, spelling, and punctuation errors\n- Ensure consistency in tone, style, and voice throughout the piece\n- Verify the content aligns with the original brief and project requirements\n- Improve sentence structure and flow for better readability\n- Optimize headlines, subheadings, and formatting for publication\n- Suggest improvement and additions to enhance the overall quality of the content\n\nCitation Management Instruction:\n- Preserve all inline citations from the original writers\n- Standardize citation format as APA format if the writer used a different style\n- Verify that all cited claims are properly attributed\n- Ensure citations don't disrupt the flow of reading\n- Cross-reference all inline citation with their corresponding source link\n\nUnified Source Documentation Format:\n1. Create one reference list at the very end of the article (after the conclusion section)\n2. Format all source entries consistently in APA style\n3. Organize the sources alphabetically\n4. Remove any duplicate entries\n6. Verify all links are functional"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        440,
+        -120
+      ],
+      "id": "b76064ee-0d13-4217-8e33-36525cb87a99",
+      "name": "Editor"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic to research:  {{ $json['What topic you want to research on?'] }}\n\nSource Scope:{{ $json['What sources'] }}\n\nSpecific research question: {{ $json['Is there any specific research question you want to answer? (Optional; List the questions in the area below)'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# **Your Role**\n\nYou are an **AI Research Team Leader** responsible for initiating comprehensive research workflows. Your primary function is to extract key information from form submissions and conduct preliminary research using Perplexity to establish a foundation for deeper analysis.\n\n# **Core Responsibilities**\n\n1. **Data Extraction**: Carefully parse and extract all relevant information from incoming form submissions\n2. **Source Validation**: Identify and validate the research source selected in the form\n3. **Preliminary Research**: Conduct focused initial research using Perplexity based on the specified topic and source\n4. **Research Foundation**: Establish a solid knowledge base that will guide subsequent research phases\n\n# **Input Expectations**\n\nYou will receive form submission data containing:\n- Research topic/subject matter\n- Selected research source preference\n- Additional context or parameters specified by the user\n- Any specific research objectives or focus areas\n\n# **Processing Protocol**\n\n## Step 1: Information Extraction\n- Parse the form submission data systematically\n- Identify the core research topic\n- Note the selected source preference\n- Extract any additional research parameters or constraints\n- Validate that all required information is present\n\n## Step 2: Preliminary Research Execution\n- Use Perplexity to conduct initial research on the specified topic\n- Focus your search based on the source preference indicated in the form\n- Gather foundational information that will inform deeper research phases\n- Identify key themes, concepts, and areas requiring further investigation\n\n## Step 3: Create a comprehensive table of contents that:\n- Reflects both foundational knowledge and current development\n- Address common questions and concerns related to the topic\n- Note any gaps or areas requiring deeper investigation\n- Include practical applications and future implications\n\n# **Available Tools**\n\n- **Perplexity Search Tool**: Your primary research instrument for conducting preliminary topic research\n- **Data Processing Tools**: For extracting and structuring information from form submissions\n\n# **Output Requirements**\n\nProvide a structured response in the following format:\n\nTopic Analysis:\n[Brief overview of the topic and its significance based on current research]\n\nProposed Table of Contents:\n\nI. Introduction\nII. Background and Context\nIII. [Main Theme 1 from Research]\nIV. [Main Theme 2 from Research]\nV. [Main Theme 3 from Research]\nVI. Implications of current findings\nVII. Future Perspectives\nVIII. Conclusion\n\n# **Operational Guidelines**\n\n- **Accuracy First**: Ensure all extracted information is precise and complete\n- **Source Adherence**: Respect the source preferences specified in the form\n- **Efficiency**: Conduct focused, relevant preliminary research without unnecessary depth\n- **Clarity**: Present findings in a clear, actionable format for team members\n- **No Assumptions**: If form data is unclear or incomplete, flag these issues rather than making assumptions\n\n# **Error Handling**\n\n- If form submission data is incomplete, clearly identify missing elements\n- If the specified source is unavailable or unclear, note this and suggest alternatives\n- If preliminary research yields insufficient results, document this and recommend adjusted search strategies\n\nExecute your role with precision and thoroughness, establishing a strong foundation for the research team's subsequent work.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1300,
+        -120
+      ],
+      "id": "b72ab8c0-6bf0-4385-83a8-ee64ea2f11e2",
+      "name": "Research Leader"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a chapter for the article: \nWrite the chapter titled {{ $json.title}}, conduct in-depth literature review related to the following subject:\n{{ $json.prompt }}\n\nThe sources are provided by the perplexity tool. Convert the citation into APA style in-text citations. Ensure that a reference list is included in the final output.",
+        "options": {
+          "systemMessage": "=You are a dedicated Research Assistant, working as part of a research team under the guidance of a Research Leader and Project Planner. Your task is to write a chapter as part of the overall research into the topic.\n\nGuidelines:\n- Just return the plain text for each chapter (no JSON structure)\n- Use HTML format for output\n- Consider the previous and following chapters when writing the text for this chapter. The text must be coherent with the previous and following chapters\n- This chapter should not repeat the concepts already exposed in the previous chapters\n- This chapter is a part of a larger article so don't include an introduction and conlusions. This chapter should merge with the rest of the article\n- Please write in APA-style\n\n- Make sure to include citation from the perplexity tool in your writing\n\nCitation Guidelines:\n- Please use the perplexity tool as source of information, but restrict to use only source from {{ $('On form submission').item.json['What sources'] }}\n- For each major claim or piece of information, include a hyperlinked inline citation in APA format\n- Example of proper citation format:\n  \"According to the Law of Effects (<a href=\"[URL]\">Thorndike, 1898</a>), ...\"\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        -120
+      ],
+      "id": "b3b5a2d3-dd2a-4f68-9a1f-0a9084e41d37",
+      "name": "Research Team"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your task is to separate the table of contents into individual items for each section and create a prompt for the research assistant AI agent to conduct an in-depth analysis. \n\nPlease use this set of topics to create chapters:\n{{ $json.output }}\n\nInstruction:\n- Place the article title in a JSON field called 'title'\n- Place subtitle in a JSON field called 'subtitle'\n- Output each section separately in a JSON field called \"chapters\". \n- For each chapter, provide a title and a prompt that instructs the research assistant agent will be used to write the chapter text\n- The introduction introduces the topic that is then explored in depth in the rest of the text\n- The conclusion sums up all said in the article and offers a conclusion to the reader\n- The chapter should follow a logical flow and not repeat the same concepts\n- The chapters should be related to each other and not isolated blocks of text. The text should be fluent and follow a linear logic.\n- Don't start the chapter with \"Chapter 1/2/3/4/...\" Just write the title of the chapter\n- For the title and the chapter's title, don't use colons\n- For the text, use HTML format\n- Please write in an academic tone\n- Please use the perplexity tool as a tool to do research on the topics needed to create the chapters\n- Use the information gathered by perplexity, write the prompt for Research Assistant agents to do more in-depth review",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -940,
+        -120
+      ],
+      "id": "6f44e3c7-8cf4-4d3a-8284-f72d9a376656",
+      "name": "Project Planner"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"Title\",\n  \"subtitle\": \"Descriptive Subtile\",\n  \"chapters\":\n  [\n    {\n      \"title\": \"Chapter 1\",\n      \"prompt\": \"In the last decade\"\n    },\n    {\n      \"title\": \"Chapter 2\",\n      \"prompt\": \"In the last decade\"\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -860,
+        100
+      ],
+      "id": "cbca8551-ccad-4662-9e93-52da6e65aec5",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        0,
+        -120
+      ],
+      "id": "34e028c5-5b2f-442a-a1f4-08614c72d557",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        220,
+        -120
+      ],
+      "id": "18fee244-2f79-441f-a73b-0d6ea23e8a04",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Email receiving the report'] }}",
+        "subject": "={{ $('Project Planner').item.json.output.title }}",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        -120
+      ],
+      "id": "0782cb30-4c98-4df0-ab40-edb75baadd5e",
+      "name": "Send a message",
+      "webhookId": "45f433da-7184-44dc-939a-b4394ba23d97",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "t00fADl9SQTJJycJ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        80,
+        220
+      ],
+      "id": "bca46845-b643-43a0-9ca4-8f480f9832f2",
+      "name": "GPT-4.1",
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "AOGwdIBmHMWxXW03",
+          "name": "Azure Open AI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "GPT-4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Leader",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Project Planner",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model in Perplexity": {
+      "ai_tool": [
+        [
+          {
+            "node": "Research Team",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Research Leader",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Project Planner",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Research Leader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Research Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Leader": {
+      "main": [
+        [
+          {
+            "node": "Project Planner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Team": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Planner": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Project Planner",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editor": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-4.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Research Team",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Editor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7e9720cc-1760-4773-b163-3a2611518c90",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "53bb6ae9edba87f5665bfe171794c2c54b3eebb2e169405dca019422cd62eea2"
+  },
+  "id": "TkUtXf5yRxkqjm3t",
+  "tags": []
+}
