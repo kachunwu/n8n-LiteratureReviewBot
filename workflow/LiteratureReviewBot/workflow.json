@@ -66,8 +66,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
       "typeVersion": 1,
       "position": [
-        -1140,
-        240
+        -1300,
+        100
       ],
       "id": "dea4c3ec-fee4-4fdc-81ac-ff915a77f49d",
       "name": "GPT-4.1-mini",
@@ -94,8 +94,8 @@
       "type": "n8n-nodes-base.perplexityTool",
       "typeVersion": 1,
       "position": [
-        -600,
-        320
+        -1040,
+        180
       ],
       "id": "a0e2e938-149f-48c8-b715-8e112925c428",
       "name": "Message a model in Perplexity",
@@ -124,15 +124,16 @@
       "parameters": {
         "promptType": "define",
         "text": "=Here are the list of chapters to edit:\n{{ $json.output }}\n\nProvide polished output in HTML format. ",
+        "hasOutputParser": true,
         "options": {
-          "systemMessage": "=You are an expert journal manuscript editor specializing in refining and polishing content to ensure it meets publication standards. Your role is to review and improve the written material produced by multiple writers while maintaining academic integrity and proper source attribution. Your task is to provide a highly polished, ready-to-publish article with proper citation management.\n\nContent Review Instruction:\n- Carefully read the entire content piece\n- Check for grammar, spelling, and punctuation errors\n- Ensure consistency in tone, style, and voice throughout the piece\n- Verify the content aligns with the original brief and project requirements\n- Improve sentence structure and flow for better readability\n- Optimize headlines, subheadings, and formatting for publication\n- Suggest improvement and additions to enhance the overall quality of the content\n\nCitation Management Instruction:\n- Preserve all inline citations from the original writers\n- Standardize citation format as APA format if the writer used a different style\n- Verify that all cited claims are properly attributed\n- Ensure citations don't disrupt the flow of reading\n- Cross-reference all inline citation with their corresponding source link\n\nUnified Source Documentation Format:\n1. Create one reference list at the very end of the article (after the conclusion section)\n2. Format all source entries consistently in APA style\n3. Organize the sources alphabetically\n4. Remove any duplicate entries\n6. Verify all links are functional"
+          "systemMessage": "=You are an expert journal manuscript editor specializing in refining and polishing content to ensure it meets publication standards. Your role is to review and improve the written material produced by multiple writers while maintaining academic integrity and proper source attribution. Your task is to provide a highly polished, ready-to-publish article with proper citation management.\n\nContent Review Instruction:\n- Carefully read the entire content piece\n- Check for grammar, spelling, and punctuation errors\n- Ensure consistency in tone, style, and voice throughout the piece\n- Verify the content aligns with the original brief and project requirements\n- Improve sentence structure and flow for better readability\n- Optimize headlines, subheadings, and formatting for publication\n- Suggest improvement and additions to enhance the overall quality of the content\n\nCitation Management Instruction:\n- Preserve all inline citations from the original writers\n- Standardize citation format as APA format if the writer used a different style\n- Verify that all cited claims are properly attributed\n- Ensure citations don't disrupt the flow of reading\n- Cross-reference all inline citation with their corresponding source link\n- Do not use bullet points or numbered list for the reference\n\nUnified Source Documentation Format:\n1. Create one reference list at the very end of the article (after the conclusion section)\n2. Format all source entries consistently in APA style\n3. Organize the sources alphabetically\n4. Remove any duplicate entries\n6. Verify all links are functional"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        440,
-        -120
+        -1300,
+        760
       ],
       "id": "b76064ee-0d13-4217-8e33-36525cb87a99",
       "name": "Editor"
@@ -166,8 +167,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2,
       "position": [
-        -360,
-        -120
+        -1300,
+        360
       ],
       "id": "b3b5a2d3-dd2a-4f68-9a1f-0a9084e41d37",
       "name": "Research Team"
@@ -206,8 +207,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        0,
-        -120
+        -940,
+        360
       ],
       "id": "34e028c5-5b2f-442a-a1f4-08614c72d557",
       "name": "Merge"
@@ -226,24 +227,32 @@
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        220,
-        -120
+        -720,
+        360
       ],
       "id": "18fee244-2f79-441f-a73b-0d6ea23e8a04",
       "name": "Aggregate"
     },
     {
       "parameters": {
-        "sendTo": "={{ $('On form submission').item.json['Email receiving the report'] }}",
-        "subject": "={{ $('Project Planner').item.json.output.title }}",
-        "message": "={{ $json.output }}",
-        "options": {}
+        "sendTo": "={{ $('On form submission').item.json['Email Address to receive the literature review:'] }}",
+        "subject": "=Literature review: {{ $('Project Planner').item.json.output.title }}",
+        "message": "=Your literature review on {{ $('On form submission').item.json['What topic you want to research on?'] }} is ready. You can find the file attached below.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "=data"
+              }
+            ]
+          }
+        }
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        800,
-        -120
+        -60,
+        760
       ],
       "id": "0782cb30-4c98-4df0-ab40-edb75baadd5e",
       "name": "Send a message",
@@ -257,23 +266,92 @@
     },
     {
       "parameters": {
-        "model": "gpt-4.1",
+        "html": "={{ $json.output }}",
         "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        80,
-        220
+        -940,
+        760
       ],
-      "id": "bca46845-b643-43a0-9ca4-8f480f9832f2",
-      "name": "GPT-4.1",
+      "id": "8622b4fa-b508-4deb-9b75-8c54819b29fc",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1300,
+        580
+      ],
+      "id": "3f0a1b39-4f0e-4c18-b33a-f3ee0bbd21ce",
+      "name": "Google Gemini Chat Model",
       "credentials": {
-        "azureOpenAiApi": {
-          "id": "AOGwdIBmHMWxXW03",
-          "name": "Azure Open AI account"
+        "googlePalmApi": {
+          "id": "RAUmjJT7EClpSMIA",
+          "name": "Google Gemini(PaLM) Api account"
         }
       }
+    },
+    {
+      "parameters": {
+        "resource": "pdf",
+        "pdfTemplateId": "f7177b236a944af8",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "markdown",
+              "value": "={{ $json.cleanedMarkdown }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.apiTemplateIo",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        760
+      ],
+      "id": "4fa06846-49f0-41ad-93ba-319e082554da",
+      "name": "Create a pdf",
+      "credentials": {
+        "apiTemplateIoApi": {
+          "id": "8eI2iI8IO613jVpt",
+          "name": "APITemplate.io account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  let markdown = item.json.data; // Replace with your actual field name\n\n  // Remove the escaped ```html at the beginning\n  markdown = markdown.replace(/^\\\\`\\\\`\\\\`html\\s*/, '');\n\n  // You might also need to remove a trailing escaped ``` if present, e.g.:\n  markdown = markdown.replace(/\\\\`\\\\`\\\\`\\s*$/, '');\n\n  outputItems.push({ json: { cleanedMarkdown: markdown } });\n}\nreturn outputItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        760
+      ],
+      "id": "627c2c54-e947-453b-afdd-675f2ff55a38",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.download_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -280,
+        760
+      ],
+      "id": "30a8ae1a-1f30-4606-8c2d-b05d35b02ae1",
+      "name": "HTTP Download"
     }
   ],
   "pinData": {},
@@ -407,24 +485,68 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Markdown",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "GPT-4.1": {
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
       "ai_languageModel": [
         [
           {
-            "node": "Research Team",
+            "node": "Editor",
             "type": "ai_languageModel",
             "index": 0
           },
           {
-            "node": "Editor",
+            "node": "Research Team",
             "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a pdf": {
+      "main": [
+        [
+          {
+            "node": "HTTP Download",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Create a pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Download": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
             "index": 0
           }
         ]
@@ -433,9 +555,10 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
   },
-  "versionId": "7e9720cc-1760-4773-b163-3a2611518c90",
+  "versionId": "04af5f60-c733-464d-b2de-ff6e754c8d9d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "53bb6ae9edba87f5665bfe171794c2c54b3eebb2e169405dca019422cd62eea2"
